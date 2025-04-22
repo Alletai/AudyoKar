@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "dgSpecHash": "qvlVHYBFDwM=",
-  "success": true,
+  "dgSpecHash": "yvMsBURW+BU=",
+  "success": false,
   "projectFilePath": "C:\\Users\\allysson\\AudyoKar\\AudyoKar.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\allysson\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
@@ -20,9 +20,9 @@
     "C:\\Users\\allysson\\.nuget\\packages\\microsoft.data.sqlclient\\5.1.6\\microsoft.data.sqlclient.5.1.6.nupkg.sha512",
     "C:\\Users\\allysson\\.nuget\\packages\\microsoft.data.sqlclient.sni.runtime\\5.1.1\\microsoft.data.sqlclient.sni.runtime.5.1.1.nupkg.sha512",
     "C:\\Users\\allysson\\.nuget\\packages\\microsoft.data.sqlite.core\\9.0.4\\microsoft.data.sqlite.core.9.0.4.nupkg.sha512",
-    "C:\\Users\\allysson\\.nuget\\packages\\microsoft.entityframeworkcore\\9.0.4\\microsoft.entityframeworkcore.9.0.4.nupkg.sha512",
-    "C:\\Users\\allysson\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\9.0.4\\microsoft.entityframeworkcore.abstractions.9.0.4.nupkg.sha512",
-    "C:\\Users\\allysson\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\9.0.4\\microsoft.entityframeworkcore.analyzers.9.0.4.nupkg.sha512",
+    "C:\\Users\\allysson\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.15\\microsoft.entityframeworkcore.8.0.15.nupkg.sha512",
+    "C:\\Users\\allysson\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.15\\microsoft.entityframeworkcore.abstractions.8.0.15.nupkg.sha512",
+    "C:\\Users\\allysson\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.15\\microsoft.entityframeworkcore.analyzers.8.0.15.nupkg.sha512",
     "C:\\Users\\allysson\\.nuget\\packages\\microsoft.entityframeworkcore.design\\9.0.4\\microsoft.entityframeworkcore.design.9.0.4.nupkg.sha512",
     "C:\\Users\\allysson\\.nuget\\packages\\microsoft.entityframeworkcore.inmemory\\9.0.4\\microsoft.entityframeworkcore.inmemory.9.0.4.nupkg.sha512",
     "C:\\Users\\allysson\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\9.0.4\\microsoft.entityframeworkcore.relational.9.0.4.nupkg.sha512",
@@ -91,5 +91,42 @@
     "C:\\Users\\allysson\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "C:\\Users\\allysson\\.nuget\\packages\\system.windows.extensions\\6.0.0\\system.windows.extensions.6.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1605",
+      "level": "Error",
+      "message": "Aviso como Erro: Downgrade de pacote detectado: Microsoft.EntityFrameworkCore de 9.0.4 para 8.0.15. Referencie o pacote diretamente do projeto para selecionar uma versão diferente. \r\n AudyoKar -> Microsoft.EntityFrameworkCore.InMemory 9.0.4 -> Microsoft.EntityFrameworkCore (>= 9.0.4) \r\n AudyoKar -> Microsoft.EntityFrameworkCore (>= 8.0.15)",
+      "libraryId": "Microsoft.EntityFrameworkCore",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1605",
+      "level": "Error",
+      "message": "Aviso como Erro: Downgrade de pacote detectado: Microsoft.EntityFrameworkCore de 9.0.4 para 8.0.15. Referencie o pacote diretamente do projeto para selecionar uma versão diferente. \r\n AudyoKar -> Microsoft.EntityFrameworkCore.Design 9.0.4 -> Microsoft.EntityFrameworkCore.Relational 9.0.4 -> Microsoft.EntityFrameworkCore (>= 9.0.4) \r\n AudyoKar -> Microsoft.EntityFrameworkCore (>= 8.0.15)",
+      "libraryId": "Microsoft.EntityFrameworkCore",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1605",
+      "level": "Error",
+      "message": "Aviso como Erro: Downgrade de pacote detectado: Microsoft.EntityFrameworkCore de 9.0.4 para 8.0.15. Referencie o pacote diretamente do projeto para selecionar uma versão diferente. \r\n AudyoKar -> Microsoft.EntityFrameworkCore.SqlServer 9.0.4 -> Microsoft.EntityFrameworkCore.Relational 9.0.4 -> Microsoft.EntityFrameworkCore (>= 9.0.4) \r\n AudyoKar -> Microsoft.EntityFrameworkCore (>= 8.0.15)",
+      "libraryId": "Microsoft.EntityFrameworkCore",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1605",
+      "level": "Error",
+      "message": "Aviso como Erro: Downgrade de pacote detectado: Microsoft.EntityFrameworkCore de 9.0.4 para 8.0.15. Referencie o pacote diretamente do projeto para selecionar uma versão diferente. \r\n AudyoKar -> Microsoft.EntityFrameworkCore.Sqlite 9.0.4 -> Microsoft.EntityFrameworkCore.Sqlite.Core 9.0.4 -> Microsoft.EntityFrameworkCore.Relational 9.0.4 -> Microsoft.EntityFrameworkCore (>= 9.0.4) \r\n AudyoKar -> Microsoft.EntityFrameworkCore (>= 8.0.15)",
+      "libraryId": "Microsoft.EntityFrameworkCore",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
 }

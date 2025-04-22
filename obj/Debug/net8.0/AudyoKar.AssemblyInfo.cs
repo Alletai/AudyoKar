@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AudyoKar")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a43236e98ba350c4e228ba420b86cba5ee3c99df")]
 [assembly: System.Reflection.AssemblyProductAttribute("AudyoKar")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AudyoKar")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

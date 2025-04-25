@@ -1,16 +1,23 @@
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace AudyoKar.Models;
-
 public class OrdemServ 
 {
     public int OrdemServId { get; set; }
-    [NotMapped]
+
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public Veiculo ?Veiculo {get; set;}     
+
+    [DeleteBehavior(DeleteBehavior.NoAction)]    
     public Funcionario ?Funcionario {get; set;}
+    
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public Cliente ?Cliente {get; set;}
+    
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public Pecas ?Pecas {get; set;}
+    
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public Servico ?Servico {get; set;}
     public float Total {get; set;} 
 

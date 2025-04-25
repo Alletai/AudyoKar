@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AudyoKar.Migrations
 {
     [DbContext(typeof(DbAudyoKar))]
-    [Migration("20250423180019_Primeira_Migracao")]
+    [Migration("20250425173545_Primeira_Migracao")]
     partial class Primeira_Migracao
     {
         /// <inheritdoc />
@@ -269,31 +269,31 @@ namespace AudyoKar.Migrations
                     b.HasOne("AudyoKar.Models.Cliente", "Cliente")
                         .WithOne("OrdemServ")
                         .HasForeignKey("AudyoKar.Models.OrdemServ", "ClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("AudyoKar.Models.Funcionario", "Funcionario")
                         .WithOne("OrdemServ")
                         .HasForeignKey("AudyoKar.Models.OrdemServ", "FuncionarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("AudyoKar.Models.Pecas", "Pecas")
                         .WithMany()
                         .HasForeignKey("PecasId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("AudyoKar.Models.Servico", "Servico")
                         .WithMany()
                         .HasForeignKey("ServicoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("AudyoKar.Models.Veiculo", null)
+                    b.HasOne("AudyoKar.Models.Veiculo", "Veiculo")
                         .WithOne("OrdemServ")
                         .HasForeignKey("AudyoKar.Models.OrdemServ", "VeiculoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Cliente");
@@ -303,6 +303,8 @@ namespace AudyoKar.Migrations
                     b.Navigation("Pecas");
 
                     b.Navigation("Servico");
+
+                    b.Navigation("Veiculo");
                 });
 
             modelBuilder.Entity("AudyoKar.Models.Veiculo", b =>

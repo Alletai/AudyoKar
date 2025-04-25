@@ -157,32 +157,27 @@ namespace AudyoKar.Migrations
                         name: "FK_OrdemServicos_Clientes_ClienteId",
                         column: x => x.ClienteId,
                         principalTable: "Clientes",
-                        principalColumn: "ClienteId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ClienteId");
                     table.ForeignKey(
                         name: "FK_OrdemServicos_Funcionarios_FuncionarioId",
                         column: x => x.FuncionarioId,
                         principalTable: "Funcionarios",
-                        principalColumn: "FuncionarioId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "FuncionarioId");
                     table.ForeignKey(
                         name: "FK_OrdemServicos_Pecas_PecasId",
                         column: x => x.PecasId,
                         principalTable: "Pecas",
-                        principalColumn: "PecasId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "PecasId");
                     table.ForeignKey(
                         name: "FK_OrdemServicos_Servicos_ServicoId",
                         column: x => x.ServicoId,
                         principalTable: "Servicos",
-                        principalColumn: "ServicoId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ServicoId");
                     table.ForeignKey(
                         name: "FK_OrdemServicos_Veiculos_VeiculoId",
                         column: x => x.VeiculoId,
                         principalTable: "Veiculos",
-                        principalColumn: "VeiculoId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "VeiculoId");
                 });
 
             migrationBuilder.CreateIndex(

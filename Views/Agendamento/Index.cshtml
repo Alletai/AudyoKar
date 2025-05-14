@@ -1,0 +1,82 @@
+@model IEnumerable<AudyoKar.Models.Agendamento>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <title>Agendamentos</title>
+    <style>
+        /* ocupa toda a tela, sem margens */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        /* container principal */
+        .board {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: #fafafa;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        /* lista de cards (vertical) */
+        .tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        /* cada cartão de tarefa */
+        .task-card {
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 12px;
+            background: #fff;
+            max-width: 400px;
+        }
+        .task-card p {
+            margin: 0 0 4px;
+            font-weight: bold;
+        }
+        .task-card small {
+            color: #666;
+        }
+        /* botão flutuante de “+” */
+        .btn-add {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #333;
+            color: #fff;
+            font-size: 32px;
+            line-height: 48px;
+            text-align: center;
+            text-decoration: none;
+            user-select: none;
+        }
+        .btn-add:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="board">
+        <div class="tasks">
+            @* Se não houver agendamentos, this list ficará vazia *@
+            @foreach(var ag in Model)
+            {
+                <div class="task-card">
+                    <p>@ag.Problema</p>
+                    <small>Data: @ag.DataAgendada.ToString("dd/MM/yyyy")</small>
+                </div>
+            }
+        </div>
+        @* botão leva ao formulário de Create *@
+        <a href="@Url.Action("Create","Agendamento")" class="btn-add">+</a>
+    </div>
+</body>
+</html>

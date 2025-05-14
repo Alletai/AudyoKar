@@ -1,0 +1,140 @@
+@model AudyoKar.ViewModels.Requests.CreateAgendamentoViewModel
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <title>Novo Agendamento</title>
+    <style>
+        /* Reset básico */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 24px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .field-validation-error {
+            color: #b00;
+            font-size: 0.9rem;
+            margin-top: 4px;
+            display: block;
+        }
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn-submit,
+        .btn-cancel {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .btn-submit {
+            background: #333;
+            color: #fff;
+        }
+        .btn-submit:hover {
+            background: #555;
+        }
+        .btn-cancel {
+            background: #ccc;
+            color: #333;
+        }
+        .btn-cancel:hover {
+            background: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Novo Agendamento</h2>
+        <form asp-action="Create" method="post">
+            <div class="form-group">
+                <label asp-for="Nome"></label>
+                <input asp-for="Nome" type="text" />
+                <span asp-validation-for="Nome" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Modelo"></label>
+                <input asp-for="Modelo" type="text" />
+                <span asp-validation-for="Modelo" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Ano"></label>
+                <input asp-for="Ano" type="number" />
+                <span asp-validation-for="Ano" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Placa"></label>
+                <input asp-for="Placa" type="text" maxlength="8" />
+                <span asp-validation-for="Placa" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Problema"></label>
+                <textarea asp-for="Problema"></textarea>
+                <span asp-validation-for="Problema" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DataAgendada"></label>
+                <input asp-for="DataAgendada" type="date" />
+                <span asp-validation-for="DataAgendada" class="field-validation-error"></span>
+            </div>
+            <div class="actions">
+                <button type="submit" class="btn-submit">Salvar</button>
+                <a asp-action="Index" class="btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    @* Validação client-side *@
+    @section Scripts {
+        @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    }
+</body>
+</html>

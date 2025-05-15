@@ -65,3 +65,7 @@ appsettings.Development.json
 
 # Diretórios de dependências
 node_modules/
+
+# Arquivos de Conexão com o banco de dados
+.env
+appsettings.Production.json

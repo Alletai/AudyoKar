@@ -7,7 +7,7 @@ namespace AudyoKar.Data
     {
         public AudyoKarContext(DbContextOptions<AudyoKarContext> options) : base(options) { }
 
-         public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Agendamento> Agendamentos { get; set; }
         public DbSet<OrdemDeServico> OrdensDeServico { get; set; }
         public DbSet<Funcionario> Funcionarios { get; set; }

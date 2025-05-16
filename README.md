@@ -48,13 +48,35 @@ dotnet build
 dotnet ef database update
 ```
 
-### 6. Rodar o projeto
+### 6. Rodar o back-end do projeto
 
 ```bash
 dotnet watch run
 ```
 
-Acesse em [http://localhost:5143](http://localhost:5143) ou conforme indicado no terminal.
+Acesse o back-end do projeto em [http://localhost:8000](http://localhost:8000) ou conforme indicado no terminal.
+
+### 7. Preparar o front-end do projeto
+
+Para instalar os pacotes da `node_modules`, utilizar os seguintes comandos:
+
+```bash
+yarn
+```
+
+Ou:
+
+```bash
+npm i
+```
+
+### 7. Rodar o front-end do projeto
+
+```bash
+yarn dev
+```
+
+Acesse o front-end do projeto em [http://localhost:5143](http://localhost:5143) ou conforme indicado no terminal.
 
 ## Estrutura do Projeto
 

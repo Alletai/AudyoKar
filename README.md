@@ -1,6 +1,6 @@
 # AudyoKar
 
-Sistema de agendamento para oficina automotiva, desenvolvido em ASP.NET Core MVC com Entity Framework Core.
+Sistema de agendamento para oficina automotiva, desenvolvido em ASP.NET Core MVC com Entity Framework Core e React com TypeScript e SCSS.
 
 ## Funcionalidades
 
@@ -12,17 +12,21 @@ Sistema de agendamento para oficina automotiva, desenvolvido em ASP.NET Core MVC
 ## Requisitos
 
 - [.NET 9.0 SDK ou superior](https://dotnet.microsoft.com/download)
-- SQL Server (LocalDB ou outro)
-- (Opcional) [DotNetEnv](https://www.nuget.org/packages/DotNetEnv/) para variáveis de ambiente
+- [SQL Server](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) como Banco de Dados
+- [DotNetEnv](https://www.nuget.org/packages/DotNetEnv/) para armazenamento privado da string de conexão com o Banco de Dados
 
 ## Configuração
 
-### 1. Clone o repositório
+### 1. Faça um fork do repositório
+
+Ao criar sua própria cópia do repositório, siga o seguinte procedimento:
 
 ```bash
 git clone https://github.com/seu-usuario/AudyoKar.git
 cd AudyoKar
 ```
+
+Para inserir alterações no repositório principal, realize uma pull-request.
 
 ### 2. Variáveis de ambiente
 
@@ -88,6 +92,4 @@ Acesse o front-end do projeto em [http://localhost:5143](http://localhost:5143) 
 
 ## Observações
 
-- A string de conexão é lida do `.env` via variável de ambiente `DB_CONNECTION`.
-- O arquivo `appsettings.json` não contém mais a string de conexão.
-- Adicione `.env` ao seu `.gitignore`.
+- A string de conexão é lida do `.env` via URI `DB_CONNECTION`.

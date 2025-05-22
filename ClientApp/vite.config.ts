@@ -1,12 +1,11 @@
-// vite.config.ts (na raiz do repositório)
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  root: 'ClientApp',        // tudo que for front fica em ClientApp/
-  base: '/',                // para produção vai servir em "/"
+  // não precisa de `root` nem de `import path` aqui
+  base: '/',
   build: {
-    outDir: '../wwwroot',   // gera os estáticos em wwwroot/
+    outDir: '../wwwroot',
     emptyOutDir: true,
   },
   server: {

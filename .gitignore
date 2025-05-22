@@ -37,3 +37,6 @@ obj/
 *.swp
 .vscode/
 .idea/
+
+ClientApp/node_modules
+ClientApp/dist

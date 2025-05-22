@@ -25,3 +25,15 @@ dist-ssr
 # Build .NET
 bin/
 obj/
+# Environment & configurações locais
+.env
+appsettings.Development.json
+
+# Build .NET
+bin/
+obj/
+
+# Editor swap & workspace
+*.swp
+.vscode/
+.idea/

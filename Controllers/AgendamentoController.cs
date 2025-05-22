@@ -42,28 +42,30 @@ public class AgendamentoController : Controller
 
         if (cliente == null)
         {
-            cliente = new Cliente {
-                Nome   = vm.Nome,
+            cliente = new Cliente
+            {
+                Nome = vm.Nome,
                 Modelo = vm.Modelo,
-                Ano    = vm.Ano,
-                Placa  = vm.Placa
+                Ano = vm.Ano,
+                Placa = vm.Placa
             };
             _context.Clientes.Add(cliente);
             await _context.SaveChangesAsync();
         }
 
         // cria Agendamento
-        var ag = new Agendamento {
-            ClienteId     = cliente.Id,
-            Problema      = vm.Problema,
-            DataAgendada  = vm.DataAgendada,
-            Status        = "Aguardando"
+        var ag = new Agendamento
+        {
+            ClienteId = cliente.Id,
+            Problema = vm.Problema,
+            DataAgendada = vm.DataAgendada,
+            Status = "Aguardando"
         };
         _context.Agendamentos.Add(ag);
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
-    
+
     }
 
 }

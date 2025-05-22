@@ -16,6 +16,12 @@ builder.Services.AddDbContext<AudyoKarContext>(options =>
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -25,11 +31,18 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Agendamento}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Agendamento}/{action=Index}/{id?}"
+
+);
+
+app.MapFallbackToFile("index.html");
 
 app.Run();

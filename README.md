@@ -1,95 +1,54 @@
-# AudyoKar
+# React + TypeScript + Vite
 
-Sistema de agendamento para oficina automotiva, desenvolvido em ASP.NET Core MVC com Entity Framework Core e React com TypeScript e SCSS.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Funcionalidades
+Currently, two official plugins are available:
 
-- Cadastro de clientes e veículos
-- Agendamento de serviços
-- Listagem de agendamentos ordenados por data
-- Persistência de dados em banco SQL Server
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Requisitos
+## Expanding the ESLint configuration
 
-- [.NET 9.0 SDK ou superior](https://dotnet.microsoft.com/download)
-- [SQL Server](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) como Banco de Dados
-- [DotNetEnv](https://www.nuget.org/packages/DotNetEnv/) para armazenamento privado da string de conexão com o Banco de Dados
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-## Configuração
-
-### 1. Faça um fork do repositório
-
-Ao criar sua própria cópia do repositório, siga o seguinte procedimento:
-
-```bash
-git clone https://github.com/seu-usuario/AudyoKar.git
-cd AudyoKar
+```js
+export default tseslint.config({
+  extends: [
+    // Remove ...tseslint.configs.recommended and replace with this
+    ...tseslint.configs.recommendedTypeChecked,
+    // Alternatively, use this for stricter rules
+    ...tseslint.configs.strictTypeChecked,
+    // Optionally, add this for stylistic rules
+    ...tseslint.configs.stylisticTypeChecked,
+  ],
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
 ```
 
-Para inserir alterações no repositório principal, realize uma pull-request.
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-### 2. Variáveis de ambiente
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-Crie um arquivo `.env` na raiz do projeto com a string de conexão do banco.
-
-> **Importante:** Não compartilhe seu `.env` publicamente.
-
-### 3. Restaurar dependências
-
-```bash
-dotnet restore
+export default tseslint.config({
+  plugins: {
+    // Add the react-x and react-dom plugins
+    'react-x': reactX,
+    'react-dom': reactDom,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended typescript rules
+    ...reactX.configs['recommended-typescript'].rules,
+    ...reactDom.configs.recommended.rules,
+  },
+})
 ```
-
-### 4. Compile o código
-
-```bash
-dotnet build
-```
-
-### 5. Aplicar as migrations (criar o banco de dados)
-
-```bash
-dotnet ef database update
-```
-
-### 6. Rodar o back-end do projeto
-
-```bash
-dotnet watch run
-```
-
-Acesse o back-end do projeto em [http://localhost:8000](http://localhost:8000) ou conforme indicado no terminal.
-
-### 7. Preparar o front-end do projeto
-
-Para instalar os pacotes da `node_modules`, utilizar os seguintes comandos:
-
-```bash
-yarn
-```
-
-Ou:
-
-```bash
-npm i
-```
-
-### 7. Rodar o front-end do projeto
-
-```bash
-yarn dev
-```
-
-Acesse o front-end do projeto em [http://localhost:5143](http://localhost:5143) ou conforme indicado no terminal.
-
-## Estrutura do Projeto
-
-- `Controllers/` — Lógica de controle MVC
-- `Models/` — Modelos de dados
-- `ViewModels/` — ViewModels para formulários e requisições
-- `Views/` — Arquivos Front-End
-- `Data/` — Contexto do Entity Framework
-
-## Observações
-
-- A string de conexão é lida do `.env` via URI `DB_CONNECTION`.

@@ -1,71 +1,27 @@
-# Arquivos e diretórios padrão do .NET/ASP.NET
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# Build .NET
 bin/
 obj/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# Arquivos do Visual Studio
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-*.suo
-*.user
-*.userosscache
-*.vspscc
-*.vssscc
-.vs/
-*.cache
-
-# Arquivos do NuGet
-packages/
-*.nupkg
-*.nuget.props
-*.nuget.targets
-
-# Arquivos de log
-[Ll]og*.txt
-*.log
-*.stackdump
-
-# Arquivos de build do MSBuild
-*.pidb
-*.svcinfo
-*.g.cs
-*.g.i.cs
-
-# Testes
-TestResults/
-*.vsmdi
-
-# Arquivos do Entity Framework
-# (Se você usa migrações, mantenha os arquivos de migração no Git)
-# *.Designer.cs
-# *.Context.cs
-
-# Arquivos do sistema operacional
-.DS_Store
-Thumbs.db
-ehthumbs.db
-*.db # Se usar um banco de dados local (ex: SQLite)
-
-# Arquivos de configuração sensíveis
-appsettings.Development.json
-*.db # Se usar um banco de dados local como SQLite
-
-# Editor de código (ex: VS Code)
-.vscode/
-.vs/
-
-# Arquivos de depuração
-*.pdb
-*.dll.config
-
-# Diretórios de dependências
-node_modules/
-
-# Arquivos de Conexão com o banco de dados
-.env
-appsettings.Production.json

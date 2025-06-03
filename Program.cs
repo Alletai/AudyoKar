@@ -28,21 +28,18 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
 }
 app.UseRouting();
-
 app.UseAuthorization();
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-
+// Serve só os endpoints de API
 app.MapControllers();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Agendamento}/{action=Index}/{id?}"
+// NÃO mais o default route do MVC:
+// app.MapControllerRoute(
+//     name: "default",
+//     pattern: "{controller=Agendamento}/{action=Index}/{id?}"
+// );
 
-);
-
+// Qualquer rota não-API cai aqui no index.html do React
 app.MapFallbackToFile("index.html");
 
 app.Run();

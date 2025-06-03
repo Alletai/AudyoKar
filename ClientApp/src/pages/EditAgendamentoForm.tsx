@@ -57,9 +57,9 @@ const EditAgendamentoForm: React.FC = () => {
 			style={{
 				maxWidth: 400,
 				margin: "20px auto",
-				display: "flex", 
+				display: "flex",
 				flexDirection: "column",
-				gap: 12, 
+				gap: 12,
 			}}
 		>
 			<h2>Editar Agendamento</h2>

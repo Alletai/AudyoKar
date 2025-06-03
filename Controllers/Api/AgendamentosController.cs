@@ -20,19 +20,20 @@ namespace AudyoKar.Controllers.Api
         public async Task<ActionResult<List<AgendamentoDto>>> Get()
         {
             var lista = await _context.Agendamentos
-                .Include(a => a.Cliente)              // carrega o cliente
+                .Include(a => a.Cliente)
                 .OrderBy(a => a.DataAgendada)
                 .ToListAsync();
 
-            var dtos = lista.Select(a => new AgendamentoDto {
-                Id           = a.Id,
-                Nome         = a.Cliente.Nome,        // agora mapeia o nome
-                Problema     = a.Problema,
+            var dtos = lista.Select(a => new AgendamentoDto
+            {
+                Id = a.Id,
+                Nome = a.Cliente.Nome,
+                Problema = a.Problema,
                 DataAgendada = a.DataAgendada,
-                Status       = a.Status,              // agora mapeia o status
-                Modelo       = a.Cliente.Modelo,      // se precisar exibir
-                Ano          = a.Cliente.Ano,
-                Placa        = a.Cliente.Placa
+                Status = a.Status,
+                Modelo = a.Cliente.Modelo,
+                Ano = a.Cliente.Ano,
+                Placa = a.Cliente.Placa
             }).ToList();
 
             return Ok(dtos);
@@ -93,54 +94,109 @@ namespace AudyoKar.Controllers.Api
 
             return NoContent();
         }
-        
-         // 1) GET /api/agendamentos/{id} → traz os dados para popular o form de edição
-    [HttpGet("{id}")]
-    public async Task<ActionResult<AgendamentoDto>> GetById(int id)
-    {
-        var ag = await _context.Agendamentos
-            .Include(a => a.Cliente)
-            .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (ag == null) return NotFound();
-
-        var dto = new AgendamentoDto
+        // GET /api/agendamentos/{id}  traz os dados para popular o form de edição
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AgendamentoDto>> GetById(int id)
         {
-            Id = ag.Id,
-            Nome = ag.Cliente.Nome,
-            Problema = ag.Problema,
-            DataAgendada = ag.DataAgendada,
-            Status = ag.Status,
-            Modelo = ag.Cliente.Modelo, 
-            Ano = ag.Cliente.Ano,     
-            Placa = ag.Cliente.Placa    
-        };
-        return Ok(dto);
+            var ag = await _context.Agendamentos
+                .Include(a => a.Cliente)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (ag == null) return NotFound();
+
+            var dto = new AgendamentoDto
+            {
+                Id = ag.Id,
+                Nome = ag.Cliente.Nome,
+                Problema = ag.Problema,
+                DataAgendada = ag.DataAgendada,
+                Status = ag.Status,
+                Modelo = ag.Cliente.Modelo,
+                Ano = ag.Cliente.Ano,
+                Placa = ag.Cliente.Placa
+            };
+            return Ok(dto);
+        }
+
+        // PUT /api/agendamentos/{id} → recebe só os campos alteráveis
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] CreateAgendamentoViewModel vm)
+        {
+            var ag = await _context.Agendamentos
+                .Include(a => a.Cliente)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (ag == null) return NotFound();
+
+            ag.Problema = vm.Problema;
+            ag.DataAgendada = vm.DataAgendada;
+            ag.Cliente.Nome = vm.Nome;
+            ag.Cliente.Modelo = vm.Modelo;
+            ag.Cliente.Ano = vm.Ano;
+            ag.Cliente.Placa = vm.Placa;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // GET /api/agendamentos/search?nome=...&placa=...
+        [HttpGet("search")]
+        public async Task<ActionResult<List<AgendamentoDto>>> Search([FromQuery] string nome, [FromQuery] string placa)
+        {
+            if (string.IsNullOrWhiteSpace(nome) || string.IsNullOrWhiteSpace(placa))
+                return BadRequest("Nome e placa são obrigatórios.");
+
+            var cliente = await _context.Clientes
+                .FirstOrDefaultAsync(c => c.Nome == nome && c.Placa == placa);
+            if (cliente == null)
+                return NotFound("Cliente não encontrado.");
+
+            var ags = await _context.Agendamentos
+                .Where(a => a.ClienteId == cliente.Id)
+                .Include(a => a.Cliente)
+                .OrderBy(a => a.DataAgendada)
+                .ToListAsync();
+
+            var dtos = ags.Select(a => new AgendamentoDto
+            {
+                Id = a.Id,
+                Nome = a.Cliente.Nome,
+                Problema = a.Problema,
+                DataAgendada = a.DataAgendada,
+                Status = a.Status,
+                Modelo = a.Cliente.Modelo,
+                Ano = a.Cliente.Ano,
+                Placa = a.Cliente.Placa
+            }).ToList();
+
+            return Ok(dtos);
+        }
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> AvancarStatus(int id)
+        {
+            var agendamento = await _context.Agendamentos.FindAsync(id);
+            if (agendamento == null)
+                return NotFound();
+
+            switch (agendamento.Status)
+            {
+                case "Aguardando":
+                    agendamento.Status = "Em atendimento";
+                    break;
+                case "Em atendimento":
+                    agendamento.Status = "Finalizado";
+                    break;
+                default:
+                    return BadRequest("Status inválido.");
+            }
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
     }
-
-    // 2) PUT /api/agendamentos/{id} → recebe só os campos alteráveis
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CreateAgendamentoViewModel vm)
-    {
-        var ag = await _context.Agendamentos
-            .Include(a => a.Cliente)
-            .FirstOrDefaultAsync(a => a.Id == id);
-
-        if (ag == null) return NotFound();
-
-        // Atualiza apenas o que faz sentido no agendamento
-        ag.Problema     = vm.Problema;
-        ag.DataAgendada = vm.DataAgendada;
-        ag.Cliente.Nome   = vm.Nome;
-        ag.Cliente.Modelo = vm.Modelo;
-        ag.Cliente.Ano    = vm.Ano;
-        ag.Cliente.Placa  = vm.Placa;
-
-        await _context.SaveChangesAsync();
-        return NoContent();
-    }
-}
-
 
     // DTO simples para não vazar navegações EF
     public class AgendamentoDto
@@ -150,8 +206,8 @@ namespace AudyoKar.Controllers.Api
         public string Problema { get; set; }
         public DateTime DataAgendada { get; set; }
         public string Status { get; set; }
-        public string Modelo { get; set; }   
-         public int Ano { get; set; }        
-        public string Placa { get; set; }    
+        public string Modelo { get; set; }
+        public int Ano { get; set; }
+        public string Placa { get; set; }
     }
 }

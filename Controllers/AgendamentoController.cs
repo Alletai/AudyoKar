@@ -67,5 +67,30 @@ public class AgendamentoController : Controller
         return RedirectToAction(nameof(Index));
 
     }
+    [HttpPatch("{id}/status")]
+    public async Task<IActionResult> AvancarStatus(int id)
+    {
+        var agendamento = await _context.Agendamentos.FindAsync(id);
+        if (agendamento == null)
+            return NotFound(); // 404 se não existir
+
+        switch (agendamento.Status)
+        {
+            case "Aguardando":
+                agendamento.Status = "Em atendimento";
+                break;
+            case "Em atendimento":
+                agendamento.Status = "Finalizado";
+                break;
+            case "Finalizado":
+                return BadRequest("Agendamento já está concluído.");
+            default:
+                return BadRequest("Status inválido.");
+        }
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
 
 }

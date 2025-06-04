@@ -119,7 +119,7 @@ namespace AudyoKar.Controllers.Api
             return Ok(dto);
         }
 
-        // PUT /api/agendamentos/{id} → recebe só os campos alteráveis
+        // PUT /api/agendamentos/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateAgendamentoViewModel vm)
         {
@@ -202,12 +202,12 @@ namespace AudyoKar.Controllers.Api
     public class AgendamentoDto
     {
         public int Id { get; set; }
-        public string Nome { get; set; }
-        public string Problema { get; set; }
+        public string ?Nome { get; set; }
+        public string ?Problema { get; set; }
         public DateTime DataAgendada { get; set; }
-        public string Status { get; set; }
-        public string Modelo { get; set; }
+        public string ?Status { get; set; }
+        public string ?Modelo { get; set; }
         public int Ano { get; set; }
-        public string Placa { get; set; }
+        public string ?Placa { get; set; }
     }
 }

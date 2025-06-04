@@ -14,9 +14,13 @@ const AgendamentoBoard: React.FC = () => {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // estados para o modal de confirmação
+  // Estados para o modal de confirmação
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState<number | null>(null);
+
+  const [confirmModalOpenIniciar, setConfirmModalOpenIniciar] = useState(false);
+  const [confirmModalOpenFinalizar, setConfirmModalOpenFinalizar] = useState(false);
+  const [idToAdvance, setIdToAdvance] = useState<number | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,33 +66,49 @@ const AgendamentoBoard: React.FC = () => {
   };
 
   const handleStatusAdvance = async (id: number) => {
-	try {
-	  const res = await fetch(`/api/agendamentos/${id}/status`, {
-		method: "PATCH",
-	  });
-	  if (res.status === 204) {
-		// Atualiza o estado local: mapeia a lista e altera somente o status do item correspondente
-		setAgendamentos(prev =>
-		  prev.map(a => {
-			if (a.id !== id) return a;
-			// faz o “cycle” localmente para antecipar a atualização
-			let novoStatus = "";
-			if (a.status === "Aguardando") novoStatus = "Em atendimento";
-			else if (a.status === "Em atendimento") novoStatus = "Finalizado";
-			else novoStatus = a.status;
-			return { ...a, status: novoStatus };
-		  })
-		);
-	  } else if (res.status === 400) {
-		const erroTexto = await res.text();
-		alert("Não foi possível avançar status: " + erroTexto);
-	  } else {
-		throw new Error("Falhou ao avançar status");
-	  }
-	} catch (err) {
-	  console.error(err);
-	  alert("Erro ao mudar status. Veja o console.");
-	}
+    try {
+      const res = await fetch(`/api/agendamentos/${id}/status`, {
+        method: "PATCH",
+      });
+      if (res.status === 204) {
+        // Atualiza o estado local: mapeia a lista e altera somente o status do item correspondente
+        setAgendamentos((prev) =>
+          prev.map((a) => {
+            if (a.id !== id) return a;
+            let novoStatus = "";
+            if (a.status === "Aguardando") novoStatus = "Em atendimento";
+            else if (a.status === "Em atendimento") novoStatus = "Finalizado";
+            else novoStatus = a.status;
+            return { ...a, status: novoStatus };
+          })
+        );
+        confirmClose(); 
+      } else if (res.status === 400) {
+        const erroTexto = await res.text();
+        alert("Não foi possível avançar status: " + erroTexto);
+      } else {
+        throw new Error("Falhou ao avançar status");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao mudar status. Veja o console.");
+    }
+  };
+
+  const openConfirmIniciar = (id: number) => {
+    setIdToAdvance(id);
+    setConfirmModalOpenIniciar(true);
+  };
+
+  const openConfirmFinalizar = (id: number) => {
+    setIdToAdvance(id);
+    setConfirmModalOpenFinalizar(true);
+  };
+
+  const confirmClose = () => {
+    setConfirmModalOpenIniciar(false);
+    setConfirmModalOpenFinalizar(false);
+    setIdToAdvance(null);
   };
 
   // Filtra cada lista por status
@@ -102,7 +122,7 @@ const AgendamentoBoard: React.FC = () => {
       background: "#fafafa",
       padding: "20px",
       boxSizing: "border-box" as const,
-	  height: "100vh"
+      height: "100vh",
     },
     columnsContainer: {
       display: "flex" as const,
@@ -202,67 +222,61 @@ const AgendamentoBoard: React.FC = () => {
 
   const renderCard = (ag: Agendamento) => (
     <div key={ag.id} style={styles.taskCard}>
+      <button
+        style={styles.editBtn}
+        onClick={() => navigate(`/edit/${ag.id}`)}
+        aria-label="Editar agendamento"
+      >
+        &#9998;
+      </button>
+      <button
+        style={styles.deleteBtn}
+        onClick={() => openConfirm(ag.id)}
+        aria-label="Excluir agendamento"
+      >
+        &times;
+      </button>
+
+      {/* Botão de avançar status */}
       {ag.status === "Aguardando" && (
         <button
-          style={styles.editBtn}
-          onClick={() => navigate(`/edit/${ag.id}`)}
-          aria-label="Editar agendamento"
+          style={{
+            position: "absolute",
+            bottom: "8px",
+            right: "8px",
+            padding: "4px 8px",
+            backgroundColor: "#0275d8",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "12px",
+          }}
+          onClick={() => openConfirmIniciar(ag.id)} // Abre o modal de Iniciar
         >
-          &#9998;
-        </button>
-      )}
-      {ag.status === "Aguardando" && (
-        <button
-          style={styles.deleteBtn}
-          onClick={() => openConfirm(ag.id)}
-          aria-label="Excluir agendamento"
-        >
-          &times;
+          Iniciar atendimento
         </button>
       )}
 
-   	{/* 3) Botão de avançar status:
-       - Se “Aguardando”, exibe “Iniciar atendimento”
-       - Se “Em atendimento”, exibe “Finalizar atendimento”
-       - Se “Finalizado”, não mostra */}
-   {ag.status === "Aguardando" && (
-     <button
-       style={{
-         position: "absolute",
-         bottom: "8px",
-         right: "8px",
-         padding: "4px 8px",
-         backgroundColor: "#0275d8",
-         color: "#fff",
-         border: "none",
-         borderRadius: "4px",
-         cursor: "pointer",
-         fontSize: "12px",
-       }}
-       onClick={() => handleStatusAdvance(ag.id)}
-     >
-       Iniciar atendimento
-     </button>
-   )}
-   {ag.status === "Em atendimento" && (
-     <button
-       style={{
-         position: "absolute",
-         bottom: "8px",
-         right: "8px",
-         padding: "4px 8px",
-         backgroundColor: "#5cb85c",
-         color: "#fff",
-         border: "none",
-         borderRadius: "4px",
-         cursor: "pointer",
-         fontSize: "12px",
-       }}
-       onClick={() => handleStatusAdvance(ag.id)}
-     >
-       Finalizar atendimento
-     </button>
-   )}
+      {ag.status === "Em atendimento" && (
+        <button
+          style={{
+            position: "absolute",
+            bottom: "8px",
+            right: "8px",
+            padding: "4px 8px",
+            backgroundColor: "#5cb85c",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "12px",
+          }}
+          onClick={() => openConfirmFinalizar(ag.id)} // Abre o modal de Finalizar
+        >
+          Finalizar atendimento
+        </button>
+      )}
 
       <h4>Nome: {ag.nome}</h4>
       <span
@@ -295,23 +309,20 @@ const AgendamentoBoard: React.FC = () => {
     <div style={styles.board}>
       {loading && <p>Carregando agendamentos…</p>}
 
-      {/* 2) Container que segura as três colunas */}
+      {/* Container que segura as três colunas */}
       <div style={styles.columnsContainer}>
-        {/* Coluna “Aguardando” */}
         <div style={styles.column}>
           <div style={styles.columnHeader}>Aguardando</div>
           {aguardando.map((ag) => renderCard(ag))}
           {aguardando.length === 0 && !loading && <p>Nenhum.</p>}
         </div>
 
-        {/* Coluna “Em atendimento” */}
         <div style={styles.column}>
           <div style={styles.columnHeader}>Em atendimento</div>
           {emAtendimento.map((ag) => renderCard(ag))}
           {emAtendimento.length === 0 && !loading && <p>Nenhum.</p>}
         </div>
 
-        {/* Coluna “Finalizado” */}
         <div style={styles.column}>
           <div style={styles.columnHeader}>Finalizado</div>
           {finalizados.map((ag) => renderCard(ag))}
@@ -319,7 +330,6 @@ const AgendamentoBoard: React.FC = () => {
         </div>
       </div>
 
-      {/* Botão de adicionar continua fixo */}
       <button
         style={styles.btnAdd}
         onClick={() => navigate("/create")}
@@ -336,12 +346,70 @@ const AgendamentoBoard: React.FC = () => {
             <div style={styles.modalButtons}>
               <button
                 onClick={confirmDelete}
-                style={{ ...styles.modalBtn, background: "#c00", color: "#fff" }}
+                style={{
+                  ...styles.modalBtn,
+                  background: "#c00",
+                  color: "#fff",
+                }}
               >
                 Sim
               </button>
               <button
                 onClick={closeConfirm}
+                style={{ ...styles.modalBtn, background: "#eee" }}
+              >
+                Não
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação para Iniciar Atendimento */}
+      {confirmModalOpenIniciar && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <p>Deseja realmente iniciar o atendimento deste agendamento?</p>
+            <div style={styles.modalButtons}>
+              <button
+                onClick={() => handleStatusAdvance(idToAdvance!)}
+                style={{
+                  ...styles.modalBtn,
+                  background: "#0275d8",
+                  color: "#fff",
+                }}
+              >
+                Sim
+              </button>
+              <button
+                onClick={confirmClose}
+                style={{ ...styles.modalBtn, background: "#eee" }}
+              >
+                Não
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação para Finalizar Atendimento */}
+      {confirmModalOpenFinalizar && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <p>Deseja realmente finalizar o atendimento deste agendamento?</p>
+            <div style={styles.modalButtons}>
+              <button
+                onClick={() => handleStatusAdvance(idToAdvance!)}
+                style={{
+                  ...styles.modalBtn,
+                  background: "#5cb85c",
+                  color: "#fff",
+                }}
+              >
+                Sim
+              </button>
+              <button
+                onClick={confirmClose}
                 style={{ ...styles.modalBtn, background: "#eee" }}
               >
                 Não

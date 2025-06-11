@@ -1,54 +1,71 @@
-# React + TypeScript + Vite
+# AudyoKar
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema de agendamento para oficina automotiva, desenvolvido em ASP.NET Core MVC com Entity Framework Core.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Cadastro de clientes e veículos
+- Agendamento de serviços
+- Listagem de agendamentos ordenados por data
+- Persistência de dados em banco SQL Server
 
-## Expanding the ESLint configuration
+## Requisitos
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [.NET 9.0 SDK ou superior](https://dotnet.microsoft.com/download)
+- SQL Server (LocalDB ou outro)
+- (Opcional) [DotNetEnv](https://www.nuget.org/packages/DotNetEnv/) para variáveis de ambiente
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Configuração
+
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/seu-usuario/AudyoKar.git
+cd AudyoKar
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Variáveis de ambiente
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Crie um arquivo `.env` na raiz do projeto com a string de conexão do banco.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+> **Importante:** Não compartilhe seu `.env` publicamente.
+
+### 3. Restaurar dependências
+
+```bash
+dotnet restore
 ```
+
+### 4. Compile o código
+
+```bash
+dotnet build
+```
+
+### 5. Aplicar as migrations (criar o banco de dados)
+
+```bash
+dotnet ef database update
+```
+
+### 6. Rodar o projeto
+
+```bash
+dotnet watch run
+```
+
+Acesse em [http://localhost:5143](http://localhost:5143) ou conforme indicado no terminal.
+
+## Estrutura do Projeto
+
+- `Controllers/` — Lógica de controle MVC
+- `Models/` — Modelos de dados
+- `ViewModels/` — ViewModels para formulários e requisições
+- `Views/` — Arquivos Front-End
+- `Data/` — Contexto do Entity Framework
+
+## Observações
+
+- A string de conexão é lida do `.env` via variável de ambiente `DB_CONNECTION`.
+- O arquivo `appsettings.json` não contém mais a string de conexão.
+- Adicione `.env` ao seu `.gitignore`.

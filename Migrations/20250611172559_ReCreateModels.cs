@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AudyoKar.Migrations
 {
     /// <inheritdoc />
-    public partial class CreationFixed : Migration
+    public partial class ReCreateModels : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,7 +34,10 @@ namespace AudyoKar.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Cargo = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    Cargo = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Funcao = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Senha = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {

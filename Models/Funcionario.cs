@@ -15,7 +15,21 @@ namespace AudyoKar.Models
 
         [Required]
         [StringLength(20)]
-        public string Cargo { get; set; } // "Admin" or "Operacional"
+        public string Cargo { get; set; } // "Admin" ou "Operacional"
+
+        [Required]
+        [StringLength(50)]
+        public string Funcao { get; set; } // "Mecânico", "Eletricista", "Borracheiro", etc.
+
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter no mínimo 6 caracteres.")]
+        public string Senha { get; set; }
 
         public ICollection<Agendamento> Agendamentos { get; set; }
         public ICollection<OrdemDeServico> OrdensDeServico { get; set; }

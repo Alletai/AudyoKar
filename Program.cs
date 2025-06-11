@@ -6,7 +6,6 @@ var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<AudyoKarContext>(options =>
@@ -22,7 +21,6 @@ if (app.Environment.IsDevelopment())
 }
 
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -30,16 +28,9 @@ if (!app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseAuthorization();
 
-// Serve só os endpoints de API
+
 app.MapControllers();
 
-// NÃO mais o default route do MVC:
-// app.MapControllerRoute(
-//     name: "default",
-//     pattern: "{controller=Agendamento}/{action=Index}/{id?}"
-// );
-
-// Qualquer rota não-API cai aqui no index.html do React
 app.MapFallbackToFile("index.html");
 
 app.Run();

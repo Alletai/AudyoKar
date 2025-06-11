@@ -1,425 +1,447 @@
-// src/pages/AgendamentoBoard.tsx
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+
+// CSS para os modais
+const modalStyles = `
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+  }
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 300px;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+`;
+// Adiciona o CSS ao head se ainda não existir
+if (!document.getElementById("modal-styles")) {
+	const styleSheet = document.createElement("style");
+	styleSheet.id = "modal-styles";
+	styleSheet.textContent = modalStyles;
+	document.head.appendChild(styleSheet);
+}
 
 interface Agendamento {
-  id: number;
-  nome: string;
-  problema: string;
-  dataAgendada: string;
-  status: string;
+	id: number;
+	nome: string;
+	problema: string;
+	dataAgendada: string;
+	status: string;
 }
 
 const AgendamentoBoard: React.FC = () => {
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
-  const [loading, setLoading] = useState(false);
+	const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
+	const [loading, setLoading] = useState(false);
 
-  // Estados para o modal de confirmação
-  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [idToDelete, setIdToDelete] = useState<number | null>(null);
+	const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+	const [idToDelete, setIdToDelete] = useState<number | null>(null);
 
-  const [confirmModalOpenIniciar, setConfirmModalOpenIniciar] = useState(false);
-  const [confirmModalOpenFinalizar, setConfirmModalOpenFinalizar] = useState(false);
-  const [idToAdvance, setIdToAdvance] = useState<number | null>(null);
+	const [confirmModalOpenIniciar, setConfirmModalOpenIniciar] = useState(false);
+	const [confirmModalOpenFinalizar, setConfirmModalOpenFinalizar] =
+		useState(false);
+	const [idToAdvance, setIdToAdvance] = useState<number | null>(null);
 
-  const navigate = useNavigate();
-  const location = useLocation();
+	const navigate = useNavigate();
+	const location = useLocation();
 
-  useEffect(() => {
-    setLoading(true);
-    fetch("/api/agendamentos")
-      .then((res) => {
-        if (!res.ok) throw new Error("Falha ao buscar agendamentos");
-        return res.json();
-      })
-      .then((data: Agendamento[]) => setAgendamentos(data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [location.key]);
+	// Pegando funcionário logado do localStorage
+	const funcionarioLogado = JSON.parse(
+		localStorage.getItem("funcionarioLogado") || "null"
+	);
 
-  const openConfirm = (id: number) => {
-    setIdToDelete(id);
-    setConfirmModalOpen(true);
-  };
+	useEffect(() => {
+		setLoading(true);
+		fetch("/api/agendamentos")
+			.then((res) => {
+				if (!res.ok) throw new Error("Falha ao buscar agendamentos");
+				return res.json();
+			})
+			.then((data: Agendamento[]) => setAgendamentos(data))
+			.catch(console.error)
+			.finally(() => setLoading(false));
+	}, [location.key]);
 
-  const closeConfirm = () => {
-    setConfirmModalOpen(false);
-    setIdToDelete(null);
-  };
+	const openConfirm = (id: number) => {
+		setIdToDelete(id);
+		setConfirmModalOpen(true);
+	};
 
-  const confirmDelete = async () => {
-    if (idToDelete == null) return;
+	const closeConfirm = () => {
+		setConfirmModalOpen(false);
+		setIdToDelete(null);
+	};
 
-    try {
-      const res = await fetch(`/api/agendamentos/${idToDelete}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Erro ao excluir");
+	const confirmDelete = async () => {
+		if (idToDelete == null) return;
+		try {
+			const res = await fetch(`/api/agendamentos/${idToDelete}`, {
+				method: "DELETE",
+			});
+			if (!res.ok) throw new Error("Erro ao excluir");
+			setAgendamentos((prev) => prev.filter((a) => a.id !== idToDelete));
+		} catch (err) {
+			console.error(err);
+			alert("Não foi possível excluir o agendamento.");
+		} finally {
+			closeConfirm();
+		}
+	};
 
-      setAgendamentos((prev) => prev.filter((a) => a.id !== idToDelete));
-    } catch (err) {
-      console.error(err);
-      alert("Não foi possível excluir o agendamento.");
-    } finally {
-      closeConfirm();
-    }
-  };
+	const handleStatusAdvance = async (id: number) => {
+		try {
+			const res = await fetch(`/api/agendamentos/${id}/status`, {
+				method: "PATCH",
+			});
+			if (res.status === 204) {
+				setAgendamentos((prev) =>
+					prev.map((a) => {
+						if (a.id !== id) return a;
+						let novoStatus = "";
+						if (a.status === "Aguardando") novoStatus = "Em atendimento";
+						else if (a.status === "Em atendimento") novoStatus = "Finalizado";
+						else novoStatus = a.status;
+						return { ...a, status: novoStatus };
+					})
+				);
+				closeConfirmAdvance();
+			} else if (res.status === 400) {
+				const erroTexto = await res.text();
+				alert("Não foi possível avançar status: " + erroTexto);
+				closeConfirmAdvance();
+			} else {
+				const responseText = await res.text();
+				alert(`Erro inesperado. Status: ${res.status}`);
+				console.error("Detalhes do erro:", responseText);
+				closeConfirmAdvance();
+			}
+		} catch (err) {
+			alert("Erro ao mudar status. Veja o console.");
+			closeConfirmAdvance();
+		}
+	};
 
-  const handleStatusAdvance = async (id: number) => {
-    try {
-      const res = await fetch(`/api/agendamentos/${id}/status`, {
-        method: "PATCH",
-      });
-      if (res.status === 204) {
-        // Atualiza o estado local: mapeia a lista e altera somente o status do item correspondente
-        setAgendamentos((prev) =>
-          prev.map((a) => {
-            if (a.id !== id) return a;
-            let novoStatus = "";
-            if (a.status === "Aguardando") novoStatus = "Em atendimento";
-            else if (a.status === "Em atendimento") novoStatus = "Finalizado";
-            else novoStatus = a.status;
-            return { ...a, status: novoStatus };
-          })
-        );
-        confirmClose(); 
-      } else if (res.status === 400) {
-        const erroTexto = await res.text();
-        alert("Não foi possível avançar status: " + erroTexto);
-      } else {
-        throw new Error("Falhou ao avançar status");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao mudar status. Veja o console.");
-    }
-  };
+	const openConfirmIniciar = (id: number) => {
+		setIdToAdvance(id);
+		setConfirmModalOpenIniciar(true);
+	};
 
-  const openConfirmIniciar = (id: number) => {
-    setIdToAdvance(id);
-    setConfirmModalOpenIniciar(true);
-  };
+	const openConfirmFinalizar = (id: number) => {
+		setIdToAdvance(id);
+		setConfirmModalOpenFinalizar(true);
+	};
 
-  const openConfirmFinalizar = (id: number) => {
-    setIdToAdvance(id);
-    setConfirmModalOpenFinalizar(true);
-  };
+	const closeConfirmAdvance = () => {
+		setConfirmModalOpenIniciar(false);
+		setConfirmModalOpenFinalizar(false);
+		setIdToAdvance(null);
+	};
 
-  const confirmClose = () => {
-    setConfirmModalOpenIniciar(false);
-    setConfirmModalOpenFinalizar(false);
-    setIdToAdvance(null);
-  };
+	const aguardando = agendamentos.filter((a) => a.status === "Aguardando");
+	const emAtendimento = agendamentos.filter(
+		(a) => a.status === "Em atendimento"
+	);
+	const finalizados = agendamentos.filter((a) => a.status === "Finalizado");
 
-  // Filtra cada lista por status
-  const aguardando = agendamentos.filter((a) => a.status === "Aguardando");
-  const emAtendimento = agendamentos.filter((a) => a.status === "Em atendimento");
-  const finalizados = agendamentos.filter((a) => a.status === "Finalizado");
+	return (
+		<div className="container mt-4">
+			{loading && <p>Carregando agendamentos…</p>}
+			<div>
+				{/* NAVBAR COM NOME E BOTÃO SAIR */}
+				<nav className="navbar navbar-expand-lg navbar-light">
+					<div className="container-fluid">
+						<Link className="navbar-brand" to="/">
+							Oficina AudyoKar
+						</Link>
+						<button
+							className="navbar-toggler"
+							type="button"
+							data-bs-toggle="collapse"
+							data-bs-target="#navbarNav"
+						>
+							<span className="navbar-toggler-icon"></span>
+						</button>
+						<div className="collapse navbar-collapse" id="navbarNav">
+							<ul className="navbar-nav">
+								<li className="nav-item">
+									<Link className="nav-link" to="/">
+										Início
+									</Link>
+								</li>
+								{funcionarioLogado?.isAdmin && (
+									<li className="nav-item">
+										<Link className="nav-link" to="/funcionarios">
+											Funcionários
+										</Link>
+									</li>
+								)}
+								<li className="nav-item">
+									<Link className="nav-link" to="/agendamentos">
+										Agendamentos
+									</Link>
+								</li>
+							</ul>
+							{/* Alinhamento à direita */}
+							<div className="ms-auto d-flex align-items-center gap-2">
+								{funcionarioLogado && (
+									<>
+										<span className="navbar-text">
+											Olá, {funcionarioLogado.nome}
+										</span>
+										<button
+											className="btn btn-outline-secondary btn-sm"
+											onClick={() => {
+												localStorage.removeItem("funcionarioLogado");
+												window.location.href = "/login-funcionario";
+											}}
+										>
+											Sair
+										</button>
+									</>
+								)}
+							</div>
+						</div>
+					</div>
+				</nav>
+			</div>
 
-  const styles = {
-    board: {
-      width: "100%",
-      background: "#fafafa",
-      padding: "20px",
-      boxSizing: "border-box" as const,
-      height: "100vh",
-    },
-    columnsContainer: {
-      display: "flex" as const,
-      flexDirection: "row" as const,
-      gap: "16px",
-      justifyContent: "center" as const,
-    },
-    column: {
-      flex: 1,
-      display: "flex" as const,
-      flexDirection: "column" as const,
-      gap: "12px",
-      maxWidth: "320px",
-    },
-    columnHeader: {
-      textAlign: "center" as const,
-      padding: "8px",
-      background: "#333",
-      color: "#fff",
-      borderRadius: "4px",
-      fontWeight: "bold" as const,
-    },
-    taskCard: {
-      border: "2px solid #333",
-      borderRadius: "4px",
-      padding: "12px",
-      background: "#fff",
-      position: "relative" as const,
-    },
-    deleteBtn: {
-      position: "absolute" as const,
-      top: "8px",
-      right: "8px",
-      border: "none",
-      background: "transparent",
-      color: "#c00",
-      cursor: "pointer",
-      fontSize: "19px",
-    },
-    editBtn: {
-      position: "absolute" as const,
-      top: "8px",
-      right: "35px",
-      border: "none",
-      background: "transparent",
-      color: "#000",
-      cursor: "pointer",
-      fontSize: "13px",
-    },
-    btnAdd: {
-      position: "fixed" as const,
-      bottom: "24px",
-      right: "24px",
-      width: "48px",
-      height: "48px",
-      borderRadius: "50%",
-      background: "#333",
-      color: "#fff",
-      fontSize: "32px",
-      lineHeight: "48px",
-      textAlign: "center" as const,
-      cursor: "pointer" as const,
-      border: "none",
-    },
-    // estilos do modal
-    overlay: {
-      position: "fixed" as const,
-      top: 0,
-      left: 0,
-      width: "100vw",
-      height: "100vh",
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-      display: "flex" as const,
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
-      zIndex: 1000,
-    },
-    modal: {
-      background: "#fff",
-      padding: "20px",
-      borderRadius: "8px",
-      maxWidth: "300px",
-      textAlign: "center" as const,
-    },
-    modalButtons: {
-      display: "flex" as const,
-      justifyContent: "space-between" as const,
-      marginTop: "16px",
-    },
-    modalBtn: {
-      padding: "8px 16px",
-      border: "none",
-      borderRadius: "4px",
-      cursor: "pointer",
-    },
-  };
+			<div className="row">
+				{/* Coluna Aguardando */}
+				<div className="col-md-4">
+					<div className="bg-warning text-white p-3 mb-4 rounded text-center">
+						Aguardando
+					</div>
+					{aguardando.map((ag) => (
+						<div key={ag.id} className="card mb-3">
+							<div className="card-body">
+								<h5 className="card-title">{ag.nome}</h5>
+								<p>
+									<strong>Problema:</strong> {ag.problema}
+								</p>
+								<p>
+									<strong>Data Agendada:</strong>{" "}
+									{new Date(ag.dataAgendada).toLocaleDateString()}
+								</p>
+								<p>
+									<span className="badge bg-warning">Aguardando</span>
+								</p>
+								<button
+									onClick={(e) => {
+										e.preventDefault();
+										openConfirmIniciar(ag.id);
+									}}
+									className="btn btn-primary btn-sm me-2"
+								>
+									Iniciar Atendimento
+								</button>
+								<button
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										openConfirm(ag.id);
+									}}
+									className="btn btn-danger btn-sm"
+								>
+									Excluir
+								</button>
+							</div>
+						</div>
+					))}
+				</div>
 
-  const renderCard = (ag: Agendamento) => (
-    <div key={ag.id} style={styles.taskCard}>
-      <button
-        style={styles.editBtn}
-        onClick={() => navigate(`/edit/${ag.id}`)}
-        aria-label="Editar agendamento"
-      >
-        &#9998;
-      </button>
-      <button
-        style={styles.deleteBtn}
-        onClick={() => openConfirm(ag.id)}
-        aria-label="Excluir agendamento"
-      >
-        &times;
-      </button>
+				{/* Coluna Em Atendimento */}
+				<div className="col-md-4">
+					<div className="bg-primary text-white p-3 mb-4 rounded text-center">
+						Em Atendimento
+					</div>
+					{emAtendimento.map((ag) => (
+						<div key={ag.id} className="card mb-3">
+							<div className="card-body">
+								<h5 className="card-title">{ag.nome}</h5>
+								<p>
+									<strong>Problema:</strong> {ag.problema}
+								</p>
+								<p>
+									<strong>Data Agendada:</strong>{" "}
+									{new Date(ag.dataAgendada).toLocaleDateString()}
+								</p>
+								<p>
+									<span className="badge bg-primary">Em Atendimento</span>
+								</p>
+								<button
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										openConfirmFinalizar(ag.id);
+									}}
+									className="btn btn-success btn-sm me-2"
+								>
+									Finalizar Atendimento
+								</button>
+								<button
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										openConfirm(ag.id);
+									}}
+									className="btn btn-danger btn-sm"
+								>
+									Excluir
+								</button>
+							</div>
+						</div>
+					))}
+				</div>
 
-      {/* Botão de avançar status */}
-      {ag.status === "Aguardando" && (
-        <button
-          style={{
-            position: "absolute",
-            bottom: "8px",
-            right: "8px",
-            padding: "4px 8px",
-            backgroundColor: "#0275d8",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "12px",
-          }}
-          onClick={() => openConfirmIniciar(ag.id)} // Abre o modal de Iniciar
-        >
-          Iniciar atendimento
-        </button>
-      )}
+				{/* Coluna Finalizados */}
+				<div className="col-md-4">
+					<div className="bg-success text-white p-3 mb-4 rounded text-center">
+						Finalizado
+					</div>
+					{finalizados.map((ag) => (
+						<div key={ag.id} className="card mb-3">
+							<div className="card-body">
+								<h5 className="card-title">{ag.nome}</h5>
+								<p>
+									<strong>Problema:</strong> {ag.problema}
+								</p>
+								<p>
+									<strong>Data Agendada:</strong>{" "}
+									{new Date(ag.dataAgendada).toLocaleDateString()}
+								</p>
+								<p>
+									<span className="badge bg-success">Finalizado</span>
+								</p>
+								<button
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										openConfirm(ag.id);
+									}}
+									className="btn btn-danger btn-sm"
+								>
+									Excluir
+								</button>
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
 
-      {ag.status === "Em atendimento" && (
-        <button
-          style={{
-            position: "absolute",
-            bottom: "8px",
-            right: "8px",
-            padding: "4px 8px",
-            backgroundColor: "#5cb85c",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "12px",
-          }}
-          onClick={() => openConfirmFinalizar(ag.id)} // Abre o modal de Finalizar
-        >
-          Finalizar atendimento
-        </button>
-      )}
+			{/* Botão flutuante para novo agendamento */}
+			<button
+				onClick={() => navigate("/create")}
+				className="btn btn-warning btn-circle position-fixed bottom-0 end-0 m-4"
+				style={{
+					width: "60px",
+					height: "60px",
+					borderRadius: "50%",
+					fontSize: "24px",
+					boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+				}}
+				title="Adicionar funcionário"
+			>
+				➕
+			</button>
 
-      <h4>Nome: {ag.nome}</h4>
-      <span
-        style={{
-          display: "inline-block",
-          padding: "2px 6px",
-          backgroundColor:
-            ag.status === "Aguardando"
-              ? "#f0ad4e"
-              : ag.status === "Em atendimento"
-              ? "#0275d8"
-              : "#006400",
-          color: "#fff",
-          borderRadius: "4px",
-          fontSize: "12px",
-          marginBottom: "8px",
-        }}
-      >
-        Status: {ag.status}
-      </span>
+			{/* Modal de confirmação de exclusão */}
+			{confirmModalOpen && (
+				<div
+					className="modal-overlay"
+					onClick={(e) => {
+						if (e.target === e.currentTarget) closeConfirm();
+					}}
+				>
+					<div className="modal-content">
+						<h5>Confirmar Exclusão</h5>
+						<p>Deseja realmente excluir este agendamento?</p>
+						<div className="d-flex justify-content-end gap-2 mt-3">
+							<button onClick={closeConfirm} className="btn btn-secondary">
+								Cancelar
+							</button>
+							<button onClick={confirmDelete} className="btn btn-danger">
+								Excluir
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 
-      <p>Problema: {ag.problema}</p>
-      <small>
-        Data agendada: {new Date(ag.dataAgendada).toLocaleDateString("pt-BR")}
-      </small>
-    </div>
-  );
+			{/* Modal de Confirmação para Iniciar Atendimento */}
+			{confirmModalOpenIniciar && (
+				<div
+					className="modal-overlay"
+					onClick={(e) => {
+						if (e.target === e.currentTarget) closeConfirmAdvance();
+					}}
+				>
+					<div className="modal-content">
+						<h5>Iniciar Atendimento</h5>
+						<p>Deseja realmente iniciar o atendimento deste agendamento?</p>
+						<div className="d-flex justify-content-end gap-2 mt-3">
+							<button
+								onClick={closeConfirmAdvance}
+								className="btn btn-secondary"
+							>
+								Cancelar
+							</button>
+							<button
+								onClick={() => {
+									if (idToAdvance) handleStatusAdvance(idToAdvance);
+								}}
+								className="btn btn-primary"
+							>
+								Iniciar
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 
-  return (
-    <div style={styles.board}>
-      {loading && <p>Carregando agendamentos…</p>}
-
-      {/* Container que segura as três colunas */}
-      <div style={styles.columnsContainer}>
-        <div style={styles.column}>
-          <div style={styles.columnHeader}>Aguardando</div>
-          {aguardando.map((ag) => renderCard(ag))}
-          {aguardando.length === 0 && !loading && <p>Nenhum.</p>}
-        </div>
-
-        <div style={styles.column}>
-          <div style={styles.columnHeader}>Em atendimento</div>
-          {emAtendimento.map((ag) => renderCard(ag))}
-          {emAtendimento.length === 0 && !loading && <p>Nenhum.</p>}
-        </div>
-
-        <div style={styles.column}>
-          <div style={styles.columnHeader}>Finalizado</div>
-          {finalizados.map((ag) => renderCard(ag))}
-          {finalizados.length === 0 && !loading && <p>Nenhum.</p>}
-        </div>
-      </div>
-
-      <button
-        style={styles.btnAdd}
-        onClick={() => navigate("/create")}
-        aria-label="Adicionar Agendamento"
-      >
-        +
-      </button>
-
-      {/* Modal de confirmação de exclusão */}
-      {confirmModalOpen && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <p>Deseja realmente excluir este agendamento?</p>
-            <div style={styles.modalButtons}>
-              <button
-                onClick={confirmDelete}
-                style={{
-                  ...styles.modalBtn,
-                  background: "#c00",
-                  color: "#fff",
-                }}
-              >
-                Sim
-              </button>
-              <button
-                onClick={closeConfirm}
-                style={{ ...styles.modalBtn, background: "#eee" }}
-              >
-                Não
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Confirmação para Iniciar Atendimento */}
-      {confirmModalOpenIniciar && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <p>Deseja realmente iniciar o atendimento deste agendamento?</p>
-            <div style={styles.modalButtons}>
-              <button
-                onClick={() => handleStatusAdvance(idToAdvance!)}
-                style={{
-                  ...styles.modalBtn,
-                  background: "#0275d8",
-                  color: "#fff",
-                }}
-              >
-                Sim
-              </button>
-              <button
-                onClick={confirmClose}
-                style={{ ...styles.modalBtn, background: "#eee" }}
-              >
-                Não
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Confirmação para Finalizar Atendimento */}
-      {confirmModalOpenFinalizar && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <p>Deseja realmente finalizar o atendimento deste agendamento?</p>
-            <div style={styles.modalButtons}>
-              <button
-                onClick={() => handleStatusAdvance(idToAdvance!)}
-                style={{
-                  ...styles.modalBtn,
-                  background: "#5cb85c",
-                  color: "#fff",
-                }}
-              >
-                Sim
-              </button>
-              <button
-                onClick={confirmClose}
-                style={{ ...styles.modalBtn, background: "#eee" }}
-              >
-                Não
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+			{/* Modal de Confirmação para Finalizar Atendimento */}
+			{confirmModalOpenFinalizar && (
+				<div
+					className="modal-overlay"
+					onClick={(e) => {
+						if (e.target === e.currentTarget) closeConfirmAdvance();
+					}}
+				>
+					<div className="modal-content">
+						<h5>Finalizar Atendimento</h5>
+						<p>Deseja realmente finalizar o atendimento deste agendamento?</p>
+						<div className="d-flex justify-content-end gap-2 mt-3">
+							<button
+								onClick={closeConfirmAdvance}
+								className="btn btn-secondary"
+							>
+								Cancelar
+							</button>
+							<button
+								onClick={() => {
+									if (idToAdvance) handleStatusAdvance(idToAdvance);
+								}}
+								className="btn btn-success"
+							>
+								Finalizar
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default AgendamentoBoard;

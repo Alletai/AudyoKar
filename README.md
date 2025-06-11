@@ -80,7 +80,7 @@ cd ClientApp
 npm run dev
 ```
 
-Acesse o front-end do projeto em [http://localhost:5143](http://localhost:5143) ou conforme indicado no terminal.
+Acesse o front-end do projeto em [http://localhost:5173](http://localhost:5173) ou conforme indicado no terminal.
 
 ## Estrutura do Projeto
 

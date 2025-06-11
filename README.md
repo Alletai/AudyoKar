@@ -64,13 +64,13 @@ Acesse o back-end do projeto em [http://localhost:8000](http://localhost:8000) o
 Para instalar os pacotes da `node_modules`, utilizar os seguintes comandos:
 
 ```bash
-yarn
+yarn install
 ```
 
 Ou:
 
 ```bash
-npm i
+npm install
 ```
 
 ### 7. Rodar o front-end do projeto

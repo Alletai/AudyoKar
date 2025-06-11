@@ -1,12 +1,11 @@
 # AudyoKar
 
-Sistema de agendamento para oficina automotiva, desenvolvido em ASP.NET Core MVC com Entity Framework Core e React com TypeScript e SCSS.
+Sistema de agendamento para oficina automotiva, desenvolvido em ASP.NET Core MVC com Entity Framework Core e React com TypeScript, SCSS e Boostrap.
 
 ## Funcionalidades
-
-- Cadastro de clientes e veículos
 - Agendamento de serviços
-- Listagem de agendamentos ordenados por data
+- Listagem de agendamentos
+- Cadastro de Funcionarios
 - Persistência de dados em banco SQL Server
 
 ## Requisitos
@@ -85,11 +84,12 @@ Acesse o front-end do projeto em [http://localhost:5143](http://localhost:5143) 
 
 ## Estrutura do Projeto
 
-- `Controllers/` — Lógica de controle MVC
+- `Controllers/Api/` — Lógica da API
 - `Models/` — Modelos de dados
 - `ViewModels/` — ViewModels para formulários e requisições
-- `Views/` — Arquivos Front-End
-- `Data/` — Contexto do Entity Framework
+- `ClientApp/` - Conteúdo Front-End
+- `ClientApp/src/pages/` — Páginas do projeto
+- `Data/` — Context do Entity Framework
 
 ## Observações
 

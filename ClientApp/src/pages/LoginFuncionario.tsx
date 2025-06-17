@@ -49,6 +49,14 @@ const LoginFuncionario: React.FC = () => {
         {error && <div className="alert alert-danger">{error}</div>}
         <button className="btn btn-warning w-100">Entrar</button>
       </form>
+      <div>
+
+        <button 
+          className="btn btn-danger mt-3"
+          onClick={() => navigate("/")}>
+            Retornar
+        </button>
+      </div>
     </div>
   );
 };

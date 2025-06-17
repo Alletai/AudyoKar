@@ -548,7 +548,6 @@ const AgendamentoBoard: React.FC = () => {
 
 			if (res.ok) {
 				const ordemCriada = await res.json();
-				alert("Ordem de serviço criada com sucesso!");
 				console.log("Ordem de serviço criada:", ordemCriada);
 
 				setAgendamentosComOrdem(
@@ -562,9 +561,6 @@ const AgendamentoBoard: React.FC = () => {
 			}
 		} catch (err) {
 			console.error("Erro ao criar ordem de serviço:", err);
-			alert(
-				"Erro ao criar ordem de serviço. Veja o console para mais detalhes."
-			);
 		} finally {
 			setSalvandoOrdem(false);
 		}

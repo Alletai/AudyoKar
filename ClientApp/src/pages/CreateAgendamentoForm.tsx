@@ -89,7 +89,7 @@ const CreateAgendamentoForm: React.FC = () => {
           value={placa}
           onChange={(e) => setPlaca(e.target.value)}
           className="form-control"
-          maxLength={8}
+          maxLength={7}
           required
         />
       </div>

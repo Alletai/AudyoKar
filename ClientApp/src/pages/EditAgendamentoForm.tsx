@@ -103,6 +103,7 @@ const EditAgendamentoForm: React.FC = () => {
           value={placa}
           onChange={(e) => setPlaca(e.target.value)}
           className="form-control"
+          maxLength={7} 
           required
         />
       </div>

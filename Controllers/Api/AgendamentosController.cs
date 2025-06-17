@@ -16,11 +16,13 @@ namespace AudyoKar.Controllers.Api
         {
             _context = context;
         }
+        
         [HttpGet]
         public async Task<ActionResult<List<AgendamentoDto>>> Get()
         {
             var lista = await _context.Agendamentos
                 .Include(a => a.Cliente)
+                .Include(a => a.Funcionario) 
                 .OrderBy(a => a.DataAgendada)
                 .ToListAsync();
 
@@ -33,13 +35,23 @@ namespace AudyoKar.Controllers.Api
                 Status = a.Status,
                 Modelo = a.Cliente.Modelo,
                 Ano = a.Cliente.Ano,
-                Placa = a.Cliente.Placa
+                Placa = a.Cliente.Placa,
+                FuncionarioResponsavel = a.Funcionario?.Nome,
+                ClienteId = a.ClienteId, 
+                DataFinalizacao = GetDataFinalizacao(a)
             }).ToList();
 
             return Ok(dtos);
         }
 
-
+        private DateTime? GetDataFinalizacao(Agendamento agendamento)
+        {
+            if (agendamento.Status == "Finalizado")
+            {
+                return DateTime.Now; 
+            }
+            return null;
+        }
 
         [HttpPost]
         public async Task<ActionResult<AgendamentoDto>> Post([FromBody] CreateAgendamentoViewModel vm)
@@ -76,7 +88,8 @@ namespace AudyoKar.Controllers.Api
                 Nome = cliente.Nome,
                 Problema = agendamento.Problema,
                 DataAgendada = agendamento.DataAgendada,
-                Status = agendamento.Status
+                Status = agendamento.Status,
+                ClienteId = cliente.Id
             };
 
             return CreatedAtAction(nameof(Get), new { id = agendamento.Id }, novoDto);
@@ -95,12 +108,12 @@ namespace AudyoKar.Controllers.Api
             return NoContent();
         }
 
-        // GET /api/agendamentos/{id}  traz os dados para popular o form de edição
         [HttpGet("{id}")]
         public async Task<ActionResult<AgendamentoDto>> GetById(int id)
         {
             var ag = await _context.Agendamentos
                 .Include(a => a.Cliente)
+                .Include(a => a.Funcionario)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (ag == null) return NotFound();
@@ -114,12 +127,14 @@ namespace AudyoKar.Controllers.Api
                 Status = ag.Status,
                 Modelo = ag.Cliente.Modelo,
                 Ano = ag.Cliente.Ano,
-                Placa = ag.Cliente.Placa
+                Placa = ag.Cliente.Placa,
+                FuncionarioResponsavel = ag.Funcionario?.Nome,
+                ClienteId = ag.ClienteId,
+                DataFinalizacao = GetDataFinalizacao(ag)
             };
             return Ok(dto);
         }
 
-        // PUT /api/agendamentos/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateAgendamentoViewModel vm)
         {
@@ -140,7 +155,6 @@ namespace AudyoKar.Controllers.Api
             return NoContent();
         }
 
-        // GET /api/agendamentos/search?nome=...&placa=...
         [HttpGet("search")]
         public async Task<ActionResult<List<AgendamentoDto>>> Search([FromQuery] string nome, [FromQuery] string placa)
         {
@@ -155,6 +169,7 @@ namespace AudyoKar.Controllers.Api
             var ags = await _context.Agendamentos
                 .Where(a => a.ClienteId == cliente.Id)
                 .Include(a => a.Cliente)
+                .Include(a => a.Funcionario)
                 .OrderBy(a => a.DataAgendada)
                 .ToListAsync();
 
@@ -167,13 +182,17 @@ namespace AudyoKar.Controllers.Api
                 Status = a.Status,
                 Modelo = a.Cliente.Modelo,
                 Ano = a.Cliente.Ano,
-                Placa = a.Cliente.Placa
+                Placa = a.Cliente.Placa,
+                FuncionarioResponsavel = a.Funcionario?.Nome,
+                ClienteId = a.ClienteId,
+                DataFinalizacao = GetDataFinalizacao(a)
             }).ToList();
 
             return Ok(dtos);
         }
+        
         [HttpPatch("{id}/status")]
-        public async Task<IActionResult> AvancarStatus(int id)
+        public async Task<IActionResult> AvancarStatus(int id, [FromBody] AvancarStatusViewModel vm)
         {
             var agendamento = await _context.Agendamentos.FindAsync(id);
             if (agendamento == null)
@@ -183,6 +202,14 @@ namespace AudyoKar.Controllers.Api
             {
                 case "Aguardando":
                     agendamento.Status = "Em atendimento";
+                    if (vm.FuncionarioId.HasValue)
+                    {
+                        var funcionario = await _context.Funcionarios.FindAsync(vm.FuncionarioId.Value);
+                        if (funcionario != null)
+                        {
+                            agendamento.FuncionarioId = vm.FuncionarioId.Value;
+                        }
+                    }
                     break;
                 case "Em atendimento":
                     agendamento.Status = "Finalizado";
@@ -192,22 +219,27 @@ namespace AudyoKar.Controllers.Api
             }
 
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
-
     }
 
-    // DTO simples para não vazar navegações EF
     public class AgendamentoDto
     {
         public int Id { get; set; }
-        public string ?Nome { get; set; }
-        public string ?Problema { get; set; }
+        public string? Nome { get; set; }
+        public string? Problema { get; set; }
         public DateTime DataAgendada { get; set; }
-        public string ?Status { get; set; }
-        public string ?Modelo { get; set; }
+        public string? Status { get; set; }
+        public string? Modelo { get; set; }
         public int Ano { get; set; }
-        public string ?Placa { get; set; }
+        public string? Placa { get; set; }
+        public string? FuncionarioResponsavel { get; set; }
+        public int ClienteId { get; set; } 
+        public DateTime? DataFinalizacao { get; set; } 
+    }
+
+    public class AvancarStatusViewModel
+    {
+        public int? FuncionarioId { get; set; }
     }
 }

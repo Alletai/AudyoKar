@@ -33,7 +33,8 @@ namespace AudyoKar.Controllers.Api
                     Nome = f.Nome ?? string.Empty,
                     Email = f.Email ?? string.Empty,
                     Cargo = f.Cargo ?? string.Empty,
-                    Funcao = f.Funcao ?? string.Empty
+                    Funcao = f.Funcao ?? string.Empty,
+                    Senha = f.Senha ?? string.Empty 
                 }).ToList();
 
                 return Ok(dtos);
@@ -43,6 +44,7 @@ namespace AudyoKar.Controllers.Api
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
+
 
         [HttpPost]
         public async Task<ActionResult<FuncionarioDto>> Post([FromBody] CreateFuncionarioViewModel vm)
@@ -78,7 +80,7 @@ namespace AudyoKar.Controllers.Api
                 {
                     Nome = vm.Nome.Trim(),
                     Email = vm.Email.Trim(),
-                    Senha = vm.Senha, 
+                    Senha = vm.Senha,
                     Funcao = vm.Funcao.Trim(),
                     Cargo = vm.IsAdmin ? "Admin" : "Operacional"
                 };
@@ -119,7 +121,8 @@ namespace AudyoKar.Controllers.Api
                     Nome = funcionario.Nome ?? string.Empty,
                     Email = funcionario.Email ?? string.Empty,
                     Cargo = funcionario.Cargo ?? string.Empty,
-                    Funcao = funcionario.Funcao ?? string.Empty
+                    Funcao = funcionario.Funcao ?? string.Empty,
+                    Senha = funcionario.Senha ?? string.Empty 
                 };
 
                 return Ok(dto);
@@ -166,39 +169,15 @@ namespace AudyoKar.Controllers.Api
                 funcionario.Funcao = vm.Funcao.Trim();
                 funcionario.Cargo = vm.IsAdmin ? "Admin" : "Operacional";
 
-                await _context.SaveChangesAsync();
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Erro interno: {ex.Message}");
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            try
-            {
-                var funcionario = await _context.Funcionarios.FindAsync(id);
-
-                if (funcionario == null)
-                    return NotFound();
-
-                var temAgendamentos = await _context.Agendamentos
-                    .AnyAsync(a => a.FuncionarioId == id);
-
-                var temOrdens = await _context.OrdensDeServico
-                    .AnyAsync(o => o.FuncionarioId == id);
-
-                if (temAgendamentos || temOrdens)
+                if (!string.IsNullOrWhiteSpace(vm.Senha))
                 {
-                    return BadRequest("Não é possível excluir funcionário que possui agendamentos ou ordens de serviço associados.");
+                    if (vm.Senha.Length < 6)
+                        return BadRequest("Senha deve ter pelo menos 6 caracteres.");
+
+                    funcionario.Senha = vm.Senha;
                 }
 
-                _context.Funcionarios.Remove(funcionario);
                 await _context.SaveChangesAsync();
-
                 return NoContent();
             }
             catch (Exception ex)
@@ -208,28 +187,28 @@ namespace AudyoKar.Controllers.Api
         }
 
         [HttpPost("login")]
-public async Task<IActionResult> Login([FromBody] LoginFuncionarioViewModel vm)
-{
-    if (string.IsNullOrWhiteSpace(vm.Email) || string.IsNullOrWhiteSpace(vm.Senha))
-        return BadRequest("Email e senha são obrigatórios");
+        public async Task<IActionResult> Login([FromBody] LoginFuncionarioViewModel vm)
+        {
+            if (string.IsNullOrWhiteSpace(vm.Email) || string.IsNullOrWhiteSpace(vm.Senha))
+                return BadRequest("Email e senha são obrigatórios");
 
-    var funcionario = await _context.Funcionarios
-        .FirstOrDefaultAsync(f => f.Email.ToLower() == vm.Email.ToLower().Trim() && f.Senha == vm.Senha);
+            var funcionario = await _context.Funcionarios
+                .FirstOrDefaultAsync(f => f.Email.ToLower() == vm.Email.ToLower().Trim() && f.Senha == vm.Senha);
 
-    if (funcionario == null)
-        return Unauthorized("Credenciais inválidas");
+            if (funcionario == null)
+                return Unauthorized("Credenciais inválidas");
 
-    // Aqui seria ideal devolver um JWT, mas para exemplo simples, devolva um objeto:
-    return Ok(new
-    {
-        id = funcionario.Id,
-        nome = funcionario.Nome,
-        email = funcionario.Email,
-        cargo = funcionario.Cargo,
-        funcao = funcionario.Funcao,
-        isAdmin = funcionario.Cargo == "Admin"
-    });
-}
+
+            return Ok(new
+            {
+                id = funcionario.Id,
+                nome = funcionario.Nome,
+                email = funcionario.Email,
+                cargo = funcionario.Cargo,
+                funcao = funcionario.Funcao,
+                isAdmin = funcionario.Cargo == "Admin"
+            });
+        }
 
         [HttpGet("debug")]
         public async Task<ActionResult> Debug()
@@ -265,6 +244,8 @@ public async Task<IActionResult> Login([FromBody] LoginFuncionarioViewModel vm)
 
         [Required(ErrorMessage = "Função é obrigatória")]
         public string Funcao { get; set; } = string.Empty;
+
+        public string Senha { get; set; } = string.Empty;
 
         public bool IsAdmin => Cargo?.ToLower() == "admin";
     }

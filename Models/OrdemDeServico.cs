@@ -37,8 +37,8 @@ namespace AudyoKar.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Valor { get; set; }
 
-        public int? AgendamentoId { get; set; } // Referência única para um agendamento
-        public Agendamento Agendamento { get; set; } // Referência única para um agendamento
+        public int? AgendamentoId { get; set; } 
+        public Agendamento Agendamento { get; set; } 
 
         
     }

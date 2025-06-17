@@ -7,8 +7,9 @@ interface FuncionarioDto {
 	id: number;
 	nome: string;
 	email: string;
-	cargo: string; // 'Admin' ou 'Operacional'
+	cargo: string; 
 	funcao: string;
+	senha: string; 
 	isAdmin: boolean;
 }
 
@@ -137,25 +138,38 @@ const FuncionariosPage: React.FC = () => {
 		setShowModal(true);
 	};
 
-	const openEditModal = (funcionario: FuncionarioDto) => {
-		setModalMode("edit");
-		setFormData({
-			nome: funcionario.nome,
-			email: funcionario.email,
-			senha: "", // Senha só se trocar
-			funcao: funcionario.funcao || "",
-			isAdmin: funcionario.isAdmin,
-		});
-		setEditingFuncionario({
-			id: funcionario.id,
-			nome: funcionario.nome,
-			email: funcionario.email,
-			senha: "", // nunca traz a senha do backend!
-			funcao: funcionario.funcao || "",
-			isAdmin: funcionario.isAdmin,
-		});
-		setFormError(null);
-		setShowModal(true);
+	const openEditModal = async (funcionario: FuncionarioDto) => {
+		try {
+			const response = await fetch(`/api/funcionarios/${funcionario.id}`);
+			if (!response.ok) {
+				throw new Error("Erro ao buscar dados do funcionário");
+			}
+
+			const funcionarioCompleto: FuncionarioDto = await response.json();
+
+			setModalMode("edit");
+			setFormData({
+				nome: funcionarioCompleto.nome,
+				email: funcionarioCompleto.email,
+				senha: funcionarioCompleto.senha,
+				funcao: funcionarioCompleto.funcao || "",
+				isAdmin: funcionarioCompleto.isAdmin,
+			});
+			setEditingFuncionario({
+				id: funcionarioCompleto.id,
+				nome: funcionarioCompleto.nome,
+				email: funcionarioCompleto.email,
+				senha: funcionarioCompleto.senha, 
+				funcao: funcionarioCompleto.funcao || "",
+				isAdmin: funcionarioCompleto.isAdmin,
+			});
+			setFormError(null);
+			setShowModal(true);
+		} catch (err) {
+			setError(
+				err instanceof Error ? err.message : "Erro ao carregar funcionário"
+			);
+		}
 	};
 
 	const closeModal = () => {
@@ -198,6 +212,7 @@ const FuncionariosPage: React.FC = () => {
 			setFormError("E-mail inválido");
 			return false;
 		}
+
 		if (
 			modalMode === "create" &&
 			(!formData.senha || formData.senha.length < 6)
@@ -205,14 +220,18 @@ const FuncionariosPage: React.FC = () => {
 			setFormError("Senha deve ter no mínimo 6 caracteres");
 			return false;
 		}
+
+		if (modalMode === "edit" && formData.senha && formData.senha.length < 6) {
+			setFormError("Senha deve ter no mínimo 6 caracteres");
+			return false;
+		}
+
 		if (!formData.funcao) {
 			setFormError("Função é obrigatória");
 			return false;
 		}
 		return true;
 	};
-
-	// Criar ou editar funcionário
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!validateForm()) return;
@@ -227,14 +246,16 @@ const FuncionariosPage: React.FC = () => {
 
 			const method = modalMode === "create" ? "POST" : "PUT";
 
-			// Prepara os dados conforme a ação
 			const dataToSend: any = {
 				nome: formData.nome.trim(),
 				email: formData.email.trim(),
 				funcao: formData.funcao,
 				isAdmin: formData.isAdmin,
 			};
+
 			if (modalMode === "create") {
+				dataToSend.senha = formData.senha;
+			} else if (modalMode === "edit") {
 				dataToSend.senha = formData.senha;
 			}
 
@@ -262,8 +283,6 @@ const FuncionariosPage: React.FC = () => {
 			setFormLoading(false);
 		}
 	};
-
-	// Deletar funcionário
 	const handleDelete = (id: number) => {
 		setIdToDelete(id);
 		setConfirmModalOpen(true);
@@ -319,7 +338,7 @@ const FuncionariosPage: React.FC = () => {
 							</li>
 							<li className="nav-item">
 								<Link className="nav-link" to="/funcionarios">
-									Funcionários
+									Gerenciamento
 								</Link>
 							</li>
 							<li className="nav-item">
@@ -530,6 +549,23 @@ const FuncionariosPage: React.FC = () => {
 												className="form-control"
 												required
 												minLength={6}
+											/>
+										</div>
+									)}
+
+									{modalMode === "edit" && (
+										<div className="mb-3">
+											<label htmlFor="senha" className="form-label">
+												Senha
+											</label>
+											<input
+												type="password"
+												id="senha"
+												name="senha"
+												value={formData.senha}
+												onChange={handleInputChange}
+												className="form-control"
+												minLength={6} 
 											/>
 										</div>
 									)}
